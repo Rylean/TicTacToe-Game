@@ -1,75 +1,59 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+const board = document.getElementById("board");
+const statusText = document.getElementById("status");
+const resetButton = document.getElementById("resetButton");
+let currentPlayer = "X";
+let gameBoard = ["", "", "", "", "", "", "", "", ""];
 
-canvas.width = 600;
-canvas.height = 200;
-
-let player = { x: 50, y: 150, width: 20, height: 20, velocityY: 0, jumping: false };
-let gravity = 0.5;
-let ground = 150;
-let obstacles = [];
-let gameSpeed = 3;
-let score = 0;
-
-document.addEventListener("keydown", function(event) {
-    if (event.code === "Space" && !player.jumping) {
-        player.velocityY = -10;
-        player.jumping = true;
-    }
-});
-
-function update() {
-    player.velocityY += gravity;
-    player.y += player.velocityY;
-
-    if (player.y >= ground) {
-        player.y = ground;
-        player.jumping = false;
-    }
-
-    if (Math.random() < 0.02) {
-        obstacles.push({ x: canvas.width, y: ground, width: 20, height: 20 });
-    }
-
-    for (let i = 0; i < obstacles.length; i++) {
-        obstacles[i].x -= gameSpeed;
-
-        if (obstacles[i].x + obstacles[i].width < 0) {
-            obstacles.splice(i, 1);
-            score++;
-        }
-
-        if (
-            player.x < obstacles[i].x + obstacles[i].width &&
-            player.x + player.width > obstacles[i].x &&
-            player.y < obstacles[i].y + obstacles[i].height &&
-            player.y + player.height > obstacles[i].y
-        ) {
-            alert("Game Over! Score: " + score);
-            document.location.reload();
-        }
-    }
+function createBoard() {
+    board.innerHTML = "";
+    gameBoard.forEach((cell, index) => {
+        const cellElement = document.createElement("div");
+        cellElement.classList.add("cell");
+        cellElement.dataset.index = index;
+        cellElement.textContent = cell;
+        cellElement.addEventListener("click", handleCellClick);
+        board.appendChild(cellElement);
+    });
 }
 
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = "white";
-    ctx.fillRect(player.x, player.y, player.width, player.height);
-
-    ctx.fillStyle = "red";
-    for (let obstacle of obstacles) {
-        ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+function handleCellClick(event) {
+    const index = event.target.dataset.index;
+    if (gameBoard[index] !== "") return;
+    gameBoard[index] = currentPlayer;
+    event.target.textContent = currentPlayer;
+    event.target.classList.add("taken");
+    if (checkWinner()) {
+        statusText.textContent = `Player ${currentPlayer} wins!`;
+        disableBoard();
+        return;
     }
-
-    ctx.fillStyle = "white";
-    ctx.fillText("Score: " + score, 10, 20);
+    currentPlayer = currentPlayer === "X" ? "O" : "X";
+    statusText.textContent = `Player ${currentPlayer}'s turn`;
 }
 
-function gameLoop() {
-    update();
-    draw();
-    requestAnimationFrame(gameLoop);
+function checkWinner() {
+    const winPatterns = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+    ];
+    return winPatterns.some(pattern => {
+        const [a, b, c] = pattern;
+        return gameBoard[a] && gameBoard[a] === gameBoard[b] && gameBoard[a] === gameBoard[c];
+    });
 }
 
-gameLoop();
+function disableBoard() {
+    document.querySelectorAll(".cell").forEach(cell => cell.removeEventListener("click", handleCellClick));
+}
+
+function resetGame() {
+    gameBoard = ["", "", "", "", "", "", "", "", ""];
+    currentPlayer = "X";
+    statusText.textContent = "Player X's turn";
+    createBoard();
+}
+
+resetButton.addEventListener("click", resetGame);
+createBoard();
+
