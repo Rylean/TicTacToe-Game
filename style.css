@@ -1,26 +1,68 @@
+/* General Styling */
 body {
     font-family: Arial, sans-serif;
     text-align: center;
+    background-color: #282c34;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
 }
-.board {
+
+/* Status Text */
+#status {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+/* Board Styling */
+#board {
     display: grid;
     grid-template-columns: repeat(3, 100px);
     grid-template-rows: repeat(3, 100px);
     gap: 5px;
-    justify-content: center;
     margin: 20px auto;
+    background-color: #444;
+    padding: 10px;
+    border-radius: 10px;
 }
+
 .cell {
     width: 100px;
     height: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2em;
-    background-color: #f0f0f0;
+    font-size: 36px;
+    background-color: #fff;
+    color: black;
+    border-radius: 5px;
     cursor: pointer;
-    border: 2px solid #000;
+    transition: background-color 0.3s;
 }
-.cell.taken {
-    cursor: not-allowed;
+
+.cell:hover {
+    background-color: #ddd;
+}
+
+.taken {
+    pointer-events: none;
+}
+
+/* Reset Button */
+#resetButton {
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #61dafb;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#resetButton:hover {
+    background-color: #21a1f1;
 }
