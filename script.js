@@ -18,7 +18,7 @@ function createBoard() {
 
 function handleCellClick(event) {
     const index = event.target.dataset.index;
-    if (gameBoard[index] !== "") return;
+    if (gameBoard[index] !== "" || currentPlayer === "O") return;
     gameBoard[index] = currentPlayer;
     event.target.textContent = currentPlayer;
     event.target.classList.add("taken");
@@ -27,8 +27,25 @@ function handleCellClick(event) {
         disableBoard();
         return;
     }
-    currentPlayer = currentPlayer === "X" ? "O" : "X";
-    statusText.textContent = `Player ${currentPlayer}'s turn`;
+    currentPlayer = "O";
+    statusText.textContent = "Bot's turn";
+    setTimeout(botMove, 500);
+}
+
+function botMove() {
+    let emptyCells = gameBoard.map((cell, index) => cell === "" ? index : null).filter(index => index !== null);
+    if (emptyCells.length === 0) return;
+    let randomIndex = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+    gameBoard[randomIndex] = "O";
+    document.querySelector(`[data-index='${randomIndex}']`).textContent = "O";
+    document.querySelector(`[data-index='${randomIndex}']`).classList.add("taken");
+    if (checkWinner()) {
+        statusText.textContent = "Bot wins!";
+        disableBoard();
+        return;
+    }
+    currentPlayer = "X";
+    statusText.textContent = "Player X's turn";
 }
 
 function checkWinner() {
@@ -56,4 +73,3 @@ function resetGame() {
 
 resetButton.addEventListener("click", resetGame);
 createBoard();
-
